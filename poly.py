@@ -11,7 +11,7 @@ def setup_parser():
     )
     
     parser.add_argument('-p', '--powers', type=float, nargs='+',
-                      default=[0.5, 0.8, 1, 1.5, 2, 3],
+                      default=[0.1, 0.3, 0.5, 0.8, 1, 1.5, 2, 3, 5, 10],
                       help='Space-separated polynomial powers (e.g., 0.5 1 2)\n' +
                            'Default: 0.5 0.8 1 1.5 2 3')
     parser.add_argument('-lr', '--learning-rate', type=float, default=1e-4,
@@ -20,7 +20,7 @@ def setup_parser():
                       help='Final learning rate (default: 1e-7)')
     parser.add_argument('-s', '--steps', type=int, default=4000,
                       help='Total training steps (default: 4000)')
-    parser.add_argument('-w', '--warmup', type=int, default=50,
+    parser.add_argument('-w', '--warmup', type=int, default=400,
                       help='Number of warmup steps (default: 50)')
     parser.add_argument('-o', '--output', type=str, default='lr_schedule.jpg',
                       help='Output image filename (default: lr_schedule.jpg)')
@@ -61,12 +61,18 @@ def setup_log_scale(ax, args, scale_type):
     """Configure logarithmic scale based on preset"""
     if scale_type == 'none':
         # Generate evenly spaced ticks
-        num_ticks = 8
+        num_ticks = 6
         y_ticks = np.linspace(args.lr_end, args.learning_rate, num_ticks)
         ax.set_yscale('linear')
-        
-        # Force scientific notation for linear scale
-        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+        # Force scientific notation for linear scale if specified
+        if args.notation == 's':
+            formatter = FuncFormatter(lambda x, p: f'{x:.0e}')
+            ax.yaxis.set_major_formatter(formatter)
+            #ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))  #This one was not working correctly
+            ax.yaxis.set_minor_formatter(plt.NullFormatter()) #removing the minor ticks
+        else:
+            ax.ticklabel_format(style='plain', axis='y')
         
         plt.yticks(y_ticks)
         plt.ylim(args.lr_end * 0.95, args.learning_rate * 1.05)
@@ -120,18 +126,22 @@ def plot_schedules(args):
     ax = plt.gca()
     
     # Plot each power
-    colors = ['purple', 'blue', 'cyan', 'lime', 'yellow', 'orange', 'red']
-    if len(args.powers) > len(colors):
-        colors = plt.cm.rainbow(np.linspace(0, 1, len(args.powers)))
+    colors = ['purple', 'blue', 'cyan', 'turquoise', 'lightgreen', 'palegoldenrod', 'sandybrown', 'coral', 'orangered', 'red']
     
     # Generate time steps
     t = np.linspace(0, args.steps, 1000)
     
     # Plot each power
-    for power, color in zip(args.powers, colors):
+    for i, power in enumerate(args.powers):
         lr_schedule = [calculate_lr_schedule(step, args.steps, args.learning_rate, 
                                           args.lr_end, power, args.warmup) 
                       for step in t]
+        
+        if i < len(colors):
+            color = colors[i]
+        else:
+            color = plt.cm.rainbow(i / len(args.powers))
+
         plt.plot(t, lr_schedule, label=f'power={power}', color=color, linewidth=2)
     
     # Set up scale based on user choice
