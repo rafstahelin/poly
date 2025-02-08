@@ -1,0 +1,140 @@
+# Polynomial Learning Rate Scheduler
+
+A Python script for visualizing polynomial learning rate decay schedules with warmup. This tool helps machine learning practitioners visualize different learning rate decay curves to better understand and choose appropriate learning rate schedules for their training.
+
+## Features
+
+- Polynomial decay with configurable powers
+- Linear warmup period
+- Multiple visualization scales (linear and logarithmic)
+- Scientific and decimal notation options
+- Automatic filename generation with parameters
+- Customizable output format and DPI
+- Multiple preset configurations
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/poly-lr-scheduler.git
+cd poly-lr-scheduler
+```
+
+2. Create and activate a virtual environment (recommended):
+```bash
+# Windows
+python -m venv lr_venv
+lr_venv\Scripts\activate
+
+# Linux/MacOS
+python -m venv lr_venv
+source lr_venv/bin/activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+Basic usage:
+```bash
+python poly.py -p 0.5 1 2
+```
+
+### Command Line Arguments
+
+| Flag | Description | Default | Example |
+|------|-------------|---------|---------|
+| `-p`, `--powers` | Space-separated polynomial powers | `0.5 0.8 1 1.5 2 3` | `-p 0.5 1 2` |
+| `-lr`, `--learning-rate` | Initial learning rate | `1e-4` | `-lr 1e-3` |
+| `-lre`, `--lr-end` | Final learning rate | `1e-7` | `-lre 1e-8` |
+| `-s`, `--steps` | Total training steps | `4000` | `-s 5000` |
+| `-w`, `--warmup` | Warmup steps | `50` | `-w 100` |
+| `-o`, `--output` | Output filename | `lr_schedule.jpg` | `-o custom.jpg` |
+| `--dpi` | Image DPI | `300` | `--dpi 600` |
+| `-l`, `--log-scale` | Scale type (none/standard/fine/wide) | `none` | `-l standard` |
+| `-n`, `--notation` | Y-axis notation (s/d) | `s` | `-n d` |
+
+### Scale Presets
+
+- `none`: Linear scale
+- `standard`: Regular logarithmic scale
+- `fine`: Dense logarithmic scale with more tick marks
+- `wide`: Extended logarithmic scale with fewer tick marks
+
+### Examples
+
+1. Basic visualization with default settings:
+```bash
+python poly.py
+```
+
+2. Custom powers with standard log scale:
+```bash
+python poly.py -p 0.5 1 2 3 -l standard
+```
+
+3. Full customization:
+```bash
+python poly.py -p 0.5 0.8 1 1.5 2 3 5 -lr 1e-4 -lre 1e-7 -w 50 -s 4000 -l standard -n s
+```
+
+4. Different scale options:
+```bash
+# Linear scale
+python poly.py -l none
+
+# Standard log scale
+python poly.py -l standard
+
+# Fine-grained log scale
+python poly.py -l fine
+
+# Wide-range log scale
+python poly.py -l wide
+```
+
+### Auto-generated Filenames
+
+The script automatically generates descriptive filenames including all parameters when no output filename is specified. The format is:
+
+```
+lr_decay_p{powers}_lr{initial_lr}_lre{final_lr}_s{steps}_w{warmup}_scale_{scale_type}_not_{notation}_dpi{dpi}.jpg
+```
+
+Example:
+```
+lr_decay_p0.5-1-2_lr1e-04_lre1e-07_s4000_w50_scale_standard_not_s_dpi300.jpg
+```
+
+## Output
+
+The script generates:
+1. A plot showing all learning rate decay curves
+2. Console output with:
+   - Filename of saved plot
+   - Initial and final learning rates
+   - Scale type and notation used
+
+### Plot Features
+
+- Color-coded curves for different powers
+- Grid lines for better readability
+- Scientific notation on y-axis (default)
+- Legend showing power values
+- Optional warmup period visualization
+- Customizable scales (linear/logarithmic)
+
+## Requirements
+
+- Python 3.6+
+- NumPy
+- Matplotlib
+
+See `requirements.txt` for specific versions.
+
+## License
+
+MIT License - feel free to use and modify as needed.
